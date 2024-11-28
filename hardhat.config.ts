@@ -10,8 +10,6 @@ import "@typechain/hardhat";
 import "hardhat-deploy";
 
 // ================================= TASKS =========================================
-import "./hardhat/tasks";
-
 // Process Env Variables
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });

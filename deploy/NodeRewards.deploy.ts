@@ -18,19 +18,14 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const refereeAddress = (await ethers.getContract("Referee")).address;
   const nodeKeyAddress = (await ethers.getContract("NodeKey")).address;
   const rewardToken = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+  const rewardsController = deployer.address;
   const adminKycController = deployer.address;
 
   const isFirst = await isFirstDeploy(hre, "NodeRewards");
 
   await deploy("NodeRewards", {
     from: deployer.address,
-    args: [
-      rewardPerSecond,
-      maxRewardTimeWindow,
-      refereeAddress,
-      nodeKeyAddress,
-      rewardToken,
-    ],
+    args: [maxRewardTimeWindow, refereeAddress, nodeKeyAddress, rewardToken],
     log: true,
     proxy: {
       proxyContract: "EIP173ProxyWithReceive",
@@ -50,7 +45,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const initializeData = implementation.interface.encodeFunctionData(
       "initialize",
-      [adminKycController]
+      [rewardPerSecond, rewardsController, adminKycController]
     );
 
     console.log(`Setting implementation to ${implementation.address}`);
