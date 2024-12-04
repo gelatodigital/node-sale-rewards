@@ -15,6 +15,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const isFirst = await isFirstDeploy(hre, "MockNodeKey");
 
+  console.log("DEPLOYING MOCK NODE KEY");
   await deploy("MockNodeKey", {
     from: deployer.address,
     args: [],
@@ -48,10 +49,9 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 };
 
-// deploy.skip = async (hre: HardhatRuntimeEnvironment) => {
-//   const shouldSkip = hre.network.name !== "hardhat";
-//   return shouldSkip;
-// };
+deploy.skip = async () => {
+  return !isHardhat;
+};
 
 deploy.tags = ["MockNodeKey"];
 export default deploy;

@@ -3,7 +3,7 @@ import hre, { ethers } from "hardhat";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { isFirstDeploy, isTesting } from "../../src/utils";
-import { EIP173Proxy, MockRewardToken } from "../../typechain";
+import { EIP173Proxy, MockReferee } from "../../typechain";
 
 const isHardhat = isTesting(hre.network.name);
 
@@ -13,39 +13,33 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await hre.ethers.getSigners();
 
-  const isFirst = await isFirstDeploy(hre, "MockRewardToken");
+  const nodeKeyAddress = (await ethers.getContract("MockNodeKey")).address;
 
-  console.log("DEPLOYING MOCK REWARD TOKEN");
-  await deploy("MockRewardToken", {
+  const isFirst = await isFirstDeploy(hre, "MockReferee");
+
+  console.log("DEPLOYING MOCK REFEREE");
+  await deploy("MockReferee", {
     from: deployer.address,
-    args: [],
-    log: true,
+    args: [nodeKeyAddress],
+    log: !isHardhat,
     proxy: {
-      proxyContract: "EIP173Proxy",
+      proxyContract: "EIP173ProxyWithReceive",
       owner: deployer.address,
       proxyArgs: [ethers.constants.AddressZero, deployer.address, "0x"],
     },
-    deterministicDeployment: keccak256(toUtf8Bytes("RewardToken-mock")),
+    deterministicDeployment: keccak256(toUtf8Bytes("Referee-mock")),
   });
 
   if (isFirst || isHardhat) {
     const proxy = (await ethers.getContract(
-      "MockRewardToken_Proxy"
+      "MockReferee_Proxy"
     )) as EIP173Proxy;
     const implementation = (await ethers.getContract(
-      "MockRewardToken_Implementation"
-    )) as MockRewardToken;
-
-    const initializeData = implementation.interface.encodeFunctionData(
-      "initialize",
-      ["MockRewardToken", "REWARDTOKEN"]
-    );
+      "MockReferee_Implementation"
+    )) as MockReferee;
 
     console.log(`Setting implementation to ${implementation.address}`);
-    const tx = await proxy.upgradeToAndCall(
-      implementation.address,
-      initializeData
-    );
+    const tx = await proxy.upgradeTo(implementation.address);
     const receipt = await tx.wait();
     console.log(`Implementation set in tx: ${receipt.transactionHash}`);
   }
@@ -55,5 +49,5 @@ deploy.skip = async () => {
   return !isHardhat;
 };
 
-deploy.tags = ["MockRewardToken"];
+deploy.tags = ["MockReferee"];
 export default deploy;

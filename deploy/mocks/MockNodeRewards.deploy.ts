@@ -15,7 +15,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const rewardPerSecond = hre.ethers.utils.parseEther("3.1709791983764584"); // 100 mil a year
   const maxRewardTimeWindow = 60 * 60; // 60 minutes
-  const refereeAddress = (await ethers.getContract("Referee")).address;
+  const refereeAddress = (await ethers.getContract("MockReferee")).address;
   const nodeKeyAddress = (await ethers.getContract("MockNodeKey")).address;
   const rewardToken = (await ethers.getContract("MockRewardToken")).address;
   const rewardsController = deployer.address;
@@ -23,6 +23,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const isFirst = await isFirstDeploy(hre, "NodeRewards");
 
+  console.log("DEPLOYING MOCK NODE REWARDS");
   await deploy("NodeRewards", {
     from: deployer.address,
     args: [maxRewardTimeWindow, refereeAddress, nodeKeyAddress, rewardToken],
@@ -58,5 +59,10 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 };
 
+deploy.skip = async () => {
+  return !isHardhat;
+};
+
 deploy.tags = ["MockNodeRewards"];
+deploy.dependencies = ["MockReferee", "MockNodeKey", "MockRewardToken"];
 export default deploy;
