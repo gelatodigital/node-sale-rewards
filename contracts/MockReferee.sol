@@ -11,9 +11,9 @@ contract MockReferee {
 
     event LogAttest(uint256 indexed batchNumber, uint256 indexed nodeKeyId);
 
-    INodeKey public immutable NODE_KEY;
-
+    INodeKey public nodeKey;
     INodeRewards public nodeRewards;
+
     uint256 public latestFinalizedBatchNumber;
     uint256 public latestConfirmedTimestamp;
 
@@ -24,7 +24,7 @@ contract MockReferee {
     mapping(uint256 nodeKeyId => uint256 index) internal _indexOfUnclaimedBatch;
 
     constructor(address _nodeKey) {
-        NODE_KEY = INodeKey(_nodeKey);
+        nodeKey = INodeKey(_nodeKey);
     }
 
     function setNodeRewards(address _nodeRewards) external {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {INodeKey} from "./INodeKey.sol";
-
+import {INodeRewards} from "./INodeRewards.sol";
 interface IReferee {
     struct BatchInfo {
         uint256 prevBatchNumber;
@@ -17,6 +17,8 @@ interface IReferee {
         uint256 _nodeKeyId
     );
     event LogSetNodeRewards(address _nodeRewards);
+    event LogSetNodeKey(address _nodeKey);
+    event LogSetAttestPeriod(uint256 _attestPeriod);
     event LogSetOracle(address _oracle, bool _isOracle);
     event LogFinalized(
         uint256 _batchNumber,
@@ -30,9 +32,12 @@ interface IReferee {
     error NoRewardsToClaim();
     error OnlyOracle();
 
-    function NODE_KEY() external view returns (INodeKey _nodeKey);
-
+    //solhint-disable-next-line func-name-mixedcase
     function ATTEST_PERIOD() external view returns (uint256 _attestPeriod);
+
+    function nodeKey() external view returns (INodeKey _nodeKey);
+
+    function nodeRewards() external view returns (INodeRewards _nodeRewards);
 
     function getBatchInfo(
         uint256 _batchNumber
