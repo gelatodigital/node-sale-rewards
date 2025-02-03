@@ -57,6 +57,10 @@ abstract contract RewardsKYC is AccessControlUpgradeable {
         return _kycWallets.values();
     }
 
+    function isKycWallet(address _wallet) external view returns (bool) {
+        return _isKycWallet(_wallet);
+    }
+
     function _isKycWallet(address _wallet) internal view returns (bool) {
         return _kycWallets.contains(_wallet);
     }
